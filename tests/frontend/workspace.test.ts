@@ -44,10 +44,44 @@ describe('多窗格分屏与工作区测试 (Workspace Store Test)', () => {
     expect(store.activePaneId).toBe(p1)
   })
 
+  it('关闭第一个窗格时应正确保留后续窗格并更新活跃焦点', () => {
+    const store = useWorkspaceStore()
+    const p1 = store.panes[0].id
+    const p2 = store.splitPane(p1, 'horizontal')
+
+    // 聚焦在 p1
+    store.focusPane(p1)
+    expect(store.activePaneId).toBe(p1)
+
+    // 关闭 p1
+    store.closePane(p1)
+
+    expect(store.panes.length).toBe(1)
+    expect(store.panes[0].id).toBe(p2)
+    expect(store.activePaneId).toBe(p2)
+  })
+
   it('最后一个窗格不可被关闭', () => {
     const store = useWorkspaceStore()
     const p1 = store.panes[0].id
     store.closePane(p1)
+    expect(store.panes.length).toBe(1)
+  })
+
+  it('closeActivePane 应该正确关闭当前活跃窗格，但保留至少一个窗格', () => {
+    const store = useWorkspaceStore()
+    const p1 = store.panes[0].id
+    const p2 = store.splitPane(p1, 'horizontal')
+    expect(store.panes.length).toBe(2)
+    expect(store.activePaneId).toBe(p2)
+
+    // 关闭当前聚焦的 p2
+    store.closeActivePane()
+    expect(store.panes.length).toBe(1)
+    expect(store.activePaneId).toBe(p1)
+
+    // 当只剩 1 个窗格时调用，保持安全不删除
+    store.closeActivePane()
     expect(store.panes.length).toBe(1)
   })
 

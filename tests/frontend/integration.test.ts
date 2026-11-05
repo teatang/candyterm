@@ -177,4 +177,157 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
     themeStore.setThemeMode('light')
     expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
+
+  it('分屏后点击窗格关闭按钮应成功移除该分屏', async () => {
+    const { default: SplitWorkspace } = await import('@/components/terminal/SplitWorkspace.vue')
+    const { useWorkspaceStore } = await import('@/stores/workspace')
+    const store = useWorkspaceStore()
+
+    // 初始状态为 1 个窗格，切分出第 2 个窗格
+    expect(store.panes.length).toBe(1)
+    const newPaneId = store.splitPane(store.panes[0].id, 'horizontal')
+    expect(store.panes.length).toBe(2)
+
+    const wrapper = mount(SplitWorkspace, {
+      global: {
+        plugins: [i18n]
+      }
+    })
+
+    // 查找包含 ✕ 的按钮
+    const closeBtns = wrapper.findAll('button').filter(b => b.text() === '✕')
+    expect(closeBtns.length).toBe(2)
+
+    // 点击第二个窗格的关闭按钮
+    await closeBtns[1].trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // 验证 store 中窗格已被成功移除
+    expect(store.panes.length).toBe(1)
+    expect(store.panes.some(p => p.id === newPaneId)).toBe(false)
+    // 窗格降为 1 时，窗格右上角的关闭按钮应隐藏
+    expect(wrapper.findAll('button').filter(b => b.text() === '✕').length).toBe(0)
+  })
+
+  it('交互式动态分屏并关闭第一个窗格应平滑移除且不崩溃', async () => {
+    const { default: SplitWorkspace } = await import('@/components/terminal/SplitWorkspace.vue')
+    const { useWorkspaceStore } = await import('@/stores/workspace')
+    const store = useWorkspaceStore()
+
+    // 初始单窗格
+    expect(store.panes.length).toBe(1)
+    const initialPaneId = store.panes[0].id
+
+    const wrapper = mount(SplitWorkspace, {
+      global: {
+        plugins: [i18n]
+      }
+    })
+
+    // 初始状态下无关闭窗格按钮
+    expect(wrapper.findAll('button').filter(b => b.text() === '✕').length).toBe(0)
+
+    // 点击向右拆分按钮动态切分
+    const splitBtn = wrapper.find('button[data-test="split-right-btn"]')
+    expect(splitBtn.exists()).toBe(true)
+    await splitBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // 验证切分出第二个窗格，出现 2 个关闭按钮
+    expect(store.panes.length).toBe(2)
+    const closeBtns = wrapper.findAll('button').filter(b => b.text() === '✕')
+    expect(closeBtns.length).toBe(2)
+
+    // 点击第一个窗格的关闭按钮
+    await closeBtns[0].trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // 验证初始窗格被移除，只剩新增窗格，关闭按钮自动隐藏
+    expect(store.panes.length).toBe(1)
+    expect(store.panes[0].id).not.toBe(initialPaneId)
+    expect(wrapper.findAll('button').filter(b => b.text() === '✕').length).toBe(0)
+  })
+
+  it('主工作区工具栏在多窗格时显示关闭分屏按钮，点击后关闭当前活跃分屏', async () => {
+    const { useWorkspaceStore } = await import('@/stores/workspace')
+    const store = useWorkspaceStore()
+
+    const wrapper = mount(MainWorkspace, {
+      global: {
+        plugins: [i18n],
+        stubs: {
+          SplitWorkspace: true,
+          IconSidebar: true
+        }
+      }
+    })
+
+    // 单窗格时，工具栏不应显示关闭分屏按钮
+    expect(wrapper.find('[data-test="close-active-split-btn"]').exists()).toBe(false)
+
+    // 切分出第 2 个分屏
+    const newId = store.splitPane(store.panes[0].id, 'horizontal')
+    expect(store.panes.length).toBe(2)
+    expect(store.activePaneId).toBe(newId)
+    await wrapper.vm.$nextTick()
+
+    // 此时顶部工具栏应出现关闭分屏按钮
+    const closeSplitBtn = wrapper.find('[data-test="close-active-split-btn"]')
+    expect(closeSplitBtn.exists()).toBe(true)
+    expect(closeSplitBtn.text()).toContain('关闭当前分屏')
+
+    // 点击关闭分屏按钮
+    await closeSplitBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // 验证分屏已被成功移除，恢复为 1 个窗格，关闭按钮自动隐藏
+    expect(store.panes.length).toBe(1)
+    expect(store.panes.some(p => p.id === newId)).toBe(false)
+    expect(wrapper.find('[data-test="close-active-split-btn"]').exists()).toBe(false)
+  })
+
+  it('键盘快捷键 Ctrl+W 应该关闭当前活跃分屏', async () => {
+    const { useWorkspaceStore } = await import('@/stores/workspace')
+    const store = useWorkspaceStore()
+
+    const wrapper = mount(MainWorkspace, {
+      global: {
+        plugins: [i18n],
+        stubs: {
+          SplitWorkspace: true,
+          IconSidebar: true
+        }
+      }
+    })
+
+    const newId = store.splitPane(store.panes[0].id, 'horizontal')
+    expect(store.panes.length).toBe(2)
+    await wrapper.vm.$nextTick()
+
+    // 触发 Ctrl+W 键盘事件
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', ctrlKey: true }))
+    await wrapper.vm.$nextTick()
+
+    expect(store.panes.length).toBe(1)
+    expect(store.panes.some(p => p.id === newId)).toBe(false)
+  })
+
+  it('垂直分屏时应计算出对应的两行网格布局 (gridTemplateRows: 1fr 1fr)', async () => {
+    const { default: SplitWorkspace } = await import('@/components/terminal/SplitWorkspace.vue')
+    const { useWorkspaceStore } = await import('@/stores/workspace')
+    const store = useWorkspaceStore()
+
+    store.splitPane(store.panes[0].id, 'vertical')
+    expect(store.panes.length).toBe(2)
+
+    const wrapper = mount(SplitWorkspace, {
+      global: {
+        plugins: [i18n]
+      }
+    })
+
+    const grid = wrapper.find('.grid')
+    expect(grid.attributes('style')).toContain('grid-template-rows: 1fr 1fr')
+    expect(grid.attributes('style')).toContain('grid-template-columns: 1fr')
+  })
 })

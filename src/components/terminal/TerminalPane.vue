@@ -27,27 +27,37 @@
 
         <!-- 向右拆分 -->
         <button
-          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          type="button"
+          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
           :title="t('terminal.splitRight')"
-          @click.stop="splitRight"
+          data-test="split-right-btn"
+          @mousedown.stop
+          @click.stop.prevent="splitRight"
         >
           ◫
         </button>
 
         <!-- 向下拆分 -->
         <button
-          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          type="button"
+          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
           :title="t('terminal.splitDown')"
-          @click.stop="splitDown"
+          data-test="split-down-btn"
+          @mousedown.stop
+          @click.stop.prevent="splitDown"
         >
           ⬓
         </button>
 
-        <!-- 关闭窗格 -->
+        <!-- 关闭窗格（仅当存在多于1个分屏时允许关闭） -->
         <button
-          class="p-1 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          v-if="workspaceStore.panes.length > 1"
+          type="button"
+          class="p-1 px-1.5 hover:text-white hover:bg-red-500 dark:hover:bg-red-600 text-slate-500 dark:text-slate-400 rounded transition-colors font-bold cursor-pointer"
           :title="t('terminal.close')"
-          @click.stop="closeThisPane"
+          data-test="pane-close-btn"
+          @mousedown.stop
+          @click.stop.prevent="closeThisPane"
         >
           ✕
         </button>
@@ -92,6 +102,9 @@ const terminalContainer = ref<HTMLDivElement | null>(null)
 
 let term: Terminal | null = null
 let fitAddon: FitAddon | null = null
+let webglAddon: WebglAddon | null = null
+let resizeObserver: ResizeObserver | null = null
+let isDisposed = false
 
 function onFocus() {
   emit('focus')
@@ -107,6 +120,7 @@ function splitDown() {
 }
 
 function closeThisPane() {
+  console.log('[TerminalPane] 点击关闭当前窗格:', props.pane.id)
   workspaceStore.closePane(props.pane.id)
 }
 
@@ -135,13 +149,17 @@ onMounted(() => {
 
   // 尝试加载 WebGL 加速，失败时优雅降级为 Canvas/DOM
   try {
-    const webglAddon = new WebglAddon()
+    webglAddon = new WebglAddon()
     webglAddon.onContextLoss(() => {
-      webglAddon.dispose()
+      try {
+        webglAddon?.dispose()
+      } catch {}
+      webglAddon = null
     })
     term.loadAddon(webglAddon)
   } catch (err) {
     console.warn('[Candyterm] WebGL 加速未启用，自动降级为标准 Canvas 渲染模式', err)
+    webglAddon = null
   }
 
   fitAddon.fit()
@@ -183,18 +201,85 @@ onMounted(() => {
 
   // 监听窗口尺寸变化
   window.addEventListener('resize', handleResize)
+
+  // 监听容器 DOM 尺寸变化（分屏添加/关闭、抽屉展开折叠），自动触发 fit
+  if (typeof ResizeObserver !== 'undefined' && terminalContainer.value) {
+    resizeObserver = new ResizeObserver(() => {
+      if (isDisposed || !term || !fitAddon) return
+      try {
+        fitAddon.fit()
+      } catch {
+        // 捕获测试环境或瞬态卸载异常
+      }
+    })
+    resizeObserver.observe(terminalContainer.value)
+  }
 })
 
 function handleResize() {
-  fitAddon?.fit()
+  if (isDisposed || !term || !fitAddon) return
+  try {
+    fitAddon.fit()
+  } catch {}
 }
 
 watch(() => props.pane.isDrawerOpen, () => {
-  setTimeout(() => fitAddon?.fit(), 100)
+  setTimeout(() => {
+    if (isDisposed || !term || !fitAddon) return
+    try {
+      fitAddon.fit()
+    } catch {}
+  }, 100)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-  term?.dispose()
+  isDisposed = true
+
+  // 1. 彻底断开 ResizeObserver，避免后续尺寸变化触发回调
+  if (resizeObserver) {
+    try {
+      resizeObserver.disconnect()
+    } catch (err) {
+      console.warn('[Candyterm] 断开 ResizeObserver 异常:', err)
+    }
+    resizeObserver = null
+  }
+
+  // 2. 解绑窗口 Resize 监听
+  try {
+    window.removeEventListener('resize', handleResize)
+  } catch (err) {
+    console.warn('[Candyterm] 移除窗口监听异常:', err)
+  }
+
+  // 3. 显式销毁 WebglAddon，防止 WebKit 渲染上下文悬挂异常
+  if (webglAddon) {
+    try {
+      webglAddon.dispose()
+    } catch (err) {
+      console.warn('[Candyterm] 释放 WebglAddon 异常:', err)
+    }
+    webglAddon = null
+  }
+
+  // 4. 显式释放 FitAddon
+  if (fitAddon) {
+    try {
+      fitAddon.dispose()
+    } catch (err) {
+      console.warn('[Candyterm] 释放 FitAddon 异常:', err)
+    }
+    fitAddon = null
+  }
+
+  // 5. 销毁 xterm.js 实例
+  if (term) {
+    try {
+      term.dispose()
+    } catch (err) {
+      console.warn('[Candyterm] 释放 Terminal 实例异常:', err)
+    }
+    term = null
+  }
 })
 </script>

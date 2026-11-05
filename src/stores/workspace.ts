@@ -84,18 +84,33 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   function closePane(paneId: string) {
     if (panes.value.length <= 1) {
       // 最后一个窗格不可关闭
+      console.warn('[Workspace] 仅剩最后一个窗格，不可关闭:', paneId)
       return
     }
 
     const idx = panes.value.findIndex(p => p.id === paneId)
-    if (idx === -1) return
+    if (idx === -1) {
+      console.warn('[Workspace] 未找到待关闭窗格:', paneId)
+      return
+    }
 
-    panes.value.splice(idx, 1)
+    // 重新赋值产生全新数组引用，确保 Vue 3 顶级响应式依赖彻底触发更新
+    const remainingPanes = panes.value.filter(p => p.id !== paneId)
+    panes.value = remainingPanes
 
-    // 如果关闭的是当前聚焦窗格，转移焦点至最近窗格
+    // 如果关闭的是当前聚焦窗格，转移焦点至最近存活窗格
     if (activePaneId.value === paneId) {
-      const nextIdx = Math.max(0, idx - 1)
-      activePaneId.value = panes.value[nextIdx].id
+      const nextIdx = Math.min(Math.max(0, idx - 1), remainingPanes.length - 1)
+      activePaneId.value = remainingPanes[nextIdx]?.id || ''
+    }
+
+    console.log('[Workspace] 成功关闭窗格:', paneId, '剩余窗格数:', panes.value.length)
+  }
+
+  // 关闭当前活跃窗格（如果存在多于1个窗格）
+  function closeActivePane() {
+    if (panes.value.length > 1 && activePaneId.value) {
+      closePane(activePaneId.value)
     }
   }
 
@@ -124,6 +139,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     focusPane,
     splitPane,
     closePane,
+    closeActivePane,
     toggleBroadcast,
     getBroadcastTargetIds,
     toggleDrawer

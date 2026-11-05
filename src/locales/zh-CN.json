@@ -57,6 +57,7 @@
     "splitRight": "向右拆分",
     "splitDown": "向下拆分",
     "close": "关闭窗格",
+    "closeActivePane": "关闭当前分屏",
     "maximize": "最大化",
     "restore": "恢复",
     "openSftp": "打开 SFTP 抽屉",

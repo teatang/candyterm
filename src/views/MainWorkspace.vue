@@ -55,6 +55,20 @@
             <span>⬓</span>
             <span class="hidden sm:inline">{{ t('terminal.splitVertical') }}</span>
           </button>
+
+          <!-- 关闭分屏快捷操作（当存在多于1个分屏时突出展示） -->
+          <button
+            v-if="workspaceStore.panes.length > 1"
+            type="button"
+            class="p-1 px-2 text-xs text-red-600 dark:text-red-400 hover:text-white hover:bg-red-600 dark:hover:bg-red-600 border border-red-200 dark:border-red-900/50 rounded flex items-center space-x-1 transition-all shadow-sm cursor-pointer"
+            :title="t('terminal.closeActivePane')"
+            data-test="close-active-split-btn"
+            @mousedown.stop
+            @click.stop.prevent="closeActivePane"
+          >
+            <span>✕</span>
+            <span class="hidden sm:inline font-medium">{{ t('terminal.closeActivePane') }}</span>
+          </button>
         </div>
 
         <!-- 中部：当前活跃终端窗格指示 -->
@@ -110,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconSidebar from '@/components/sidebar/IconSidebar.vue'
 import SplitWorkspace from '@/components/terminal/SplitWorkspace.vue'
@@ -146,7 +160,29 @@ function splitVertical() {
   workspaceStore.splitPane(workspaceStore.activePaneId, 'vertical')
 }
 
+function closeActivePane() {
+  workspaceStore.closeActivePane()
+}
+
 function toggleActiveDrawer() {
   workspaceStore.toggleDrawer(workspaceStore.activePaneId)
 }
+
+// 快捷键支持：Ctrl+W / Cmd+W 关闭当前分屏
+function handleKeydown(event: KeyboardEvent) {
+  if ((event.metaKey || event.ctrlKey) && (event.key === 'w' || event.key === 'W')) {
+    if (workspaceStore.panes.length > 1) {
+      event.preventDefault()
+      workspaceStore.closeActivePane()
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>

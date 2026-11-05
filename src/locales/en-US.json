@@ -57,6 +57,7 @@
     "splitRight": "Split Right",
     "splitDown": "Split Down",
     "close": "Close Pane",
+    "closeActivePane": "Close Active Split",
     "maximize": "Maximize",
     "restore": "Restore",
     "openSftp": "Open SFTP Drawer",

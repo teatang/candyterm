@@ -33,6 +33,8 @@
 
 - 🖥️ **现代多窗格分屏工作区 (Multi-Pane Split)**：
   - 灵感汲取自优秀的开源终端工具（如 Electerm），提供灵活的多窗格二叉树分屏（水平 / 垂直切分）。
+  - 支持顶部快捷栏与窗格头部快速分屏；多窗格状态下顶部显式提供高亮 `[✕ 关闭当前分屏]` 按钮，并支持标准快捷键（`Ctrl+W` / `Cmd+W`）一键关闭当前活跃窗格。
+  - 窗格容器集成 `ResizeObserver`，在分屏增删或尺寸伸缩时毫秒级自动重绘终端（`fitAddon.fit()`），彻底杜绝留白或布局错乱。
   - 支持窗格拖拽调节比例（0.1~0.9 智能边界保护）与防抖节流（Throttle Resize）。
   - 支持**多窗格键盘广播输入**（Broadcast Input），一次敲击同时操作多台集群服务器。
 
@@ -155,6 +157,8 @@ pnpm tauri build
 
 - 🖥️ **Flexible Multi-Pane Workspace**:
   - Binary tree split layout supporting arbitrary horizontal and vertical splits.
+  - Top action bar features an explicit `[✕ Close Active Split]` button in multi-pane mode and supports standard `Ctrl+W` / `Cmd+W` shortcuts to dismiss active panes.
+  - Integrated `ResizeObserver` on every terminal pane container for instant, zero-delay terminal auto-fitting (`fitAddon.fit()`) during split, close, or resize events.
   - Drag-to-resize panes with ratio boundary protection (0.1–0.9) and resize throttling.
   - Unified **Keyboard Broadcast Input** to command multiple remote servers simultaneously.
 

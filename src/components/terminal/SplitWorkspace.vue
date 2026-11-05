@@ -62,14 +62,17 @@ import SftpDrawer from '@/components/sftp/SftpDrawer.vue'
 const { t } = useI18n()
 const workspaceStore = useWorkspaceStore()
 
-// 根据当前窗格数量动态计算网格布局
+// 根据当前窗格数量及拆分方向动态计算网格布局
 const gridStyle = computed(() => {
   const count = workspaceStore.panes.length
   if (count <= 1) {
     return { gridTemplateColumns: '1fr', gridTemplateRows: '1fr' }
   }
   if (count === 2) {
-    return { gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr' }
+    const isVertical = workspaceStore.panes[1]?.splitDirection === 'vertical'
+    return isVertical
+      ? { gridTemplateColumns: '1fr', gridTemplateRows: '1fr 1fr' }
+      : { gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr' }
   }
   if (count === 3) {
     return { gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }
