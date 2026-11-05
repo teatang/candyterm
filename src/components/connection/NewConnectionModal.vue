@@ -118,6 +118,17 @@
           </div>
         </div>
 
+        <!-- SSH 代理提示说明 -->
+        <div v-if="form.auth_type === 'SshAgent'" class="bg-blue-950/30 border border-blue-800/40 rounded-lg p-3 text-xs text-blue-300">
+          <div class="font-medium flex items-center space-x-1.5 mb-1">
+            <span>🛡️</span>
+            <span>SSH Agent 代理认证</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed text-[11px]">
+            将直接复用系统正在运行的 SSH 代理（如 macOS/Linux ssh-agent、Windows Pageant/OpenSSH Agent 或 1Password 等），无需在应用内输入敏感密钥。
+          </p>
+        </div>
+
         <!-- 跳板机选择 (ProxyJump) -->
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">前置跳板机 (Jump Host，可选)</label>

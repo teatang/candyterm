@@ -55,7 +55,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   function splitPane(
     targetPaneId: string,
     direction: SplitDirection,
-    hostId?: string
+    hostId?: string,
+    customTitle?: string
   ): string {
     const newId = `pane_${Date.now()}_${Math.floor(Math.random() * 1000)}`
     const targetIdx = panes.value.findIndex(p => p.id === targetPaneId)
@@ -63,7 +64,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     const newPane: TerminalPaneItem = {
       id: newId,
       hostId,
-      title: hostId ? `Session-${hostId.slice(0, 6)}` : 'Terminal',
+      title: customTitle || (hostId ? `Session-${hostId.slice(0, 6)}` : 'Terminal'),
       ratio: 0.5,
       splitDirection: direction,
       isDrawerOpen: false

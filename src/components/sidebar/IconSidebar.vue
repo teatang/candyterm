@@ -1,18 +1,41 @@
 <template>
   <aside class="w-14 bg-slate-950 border-r border-slate-800 flex flex-col items-center py-3 select-none z-30">
     <!-- 顶部应用标识 -->
-    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20 mb-6 cursor-pointer">
+    <div
+      class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20 mb-3 cursor-pointer select-none"
+      title="Candyterm"
+      @click="emit('update:activeView', 'workspace')"
+    >
       CT
     </div>
 
+    <!-- 快捷添加 SSH 连接按钮 (高亮显眼) -->
+    <button
+      class="w-9 h-9 rounded-lg bg-blue-600 hover:bg-blue-500 active:scale-95 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-blue-600/30 transition-all mb-4"
+      title="＋ 新建 SSH 连接 (可视化配置窗口)"
+      @click="emit('new-connection')"
+    >
+      ＋
+    </button>
+
     <!-- 主导航按钮组 -->
-    <nav class="flex-1 flex flex-col items-center space-y-4">
-      <!-- 会话管理 -->
+    <nav class="flex-1 flex flex-col items-center space-y-3">
+      <!-- 终端工作区视图 -->
+      <button
+        class="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors"
+        :class="activeView === 'workspace' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'"
+        title="终端分屏工作区"
+        @click="emit('update:activeView', 'workspace')"
+      >
+        🖥️
+      </button>
+
+      <!-- 会话管理器 (弹出服务器列表) -->
       <button
         class="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors"
         :class="activeView === 'sessions' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'"
-        title="会话列表 (新建/管理服务器)"
-        @click="emit('update:activeView', 'sessions')"
+        title="服务器会话管理"
+        @click="emit('open-sessions')"
       >
         💻
       </button>
@@ -84,6 +107,8 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:activeView', view: 'sessions' | 'sftp' | 'settings' | 'workspace'): void
+  (e: 'new-connection'): void
+  (e: 'open-sessions'): void
 }>()
 
 const workspaceStore = useWorkspaceStore()

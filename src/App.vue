@@ -3,7 +3,11 @@
     <n-message-provider>
       <div class="h-screen w-screen overflow-hidden bg-slate-900 font-sans text-slate-100 select-none">
         <!-- 主工作区 -->
-        <MainWorkspace>
+        <MainWorkspace
+          :saved-hosts="savedHosts"
+          @new-connection="showNewConnectionModal = true"
+          @open-sessions="showSessionListModal = true"
+        >
           <!-- 随动 SFTP 抽屉 -->
           <template #pane-drawer="{ pane, close }">
             <SftpDrawer :is-open="pane.isDrawerOpen ?? false" :pane-id="pane.id" @close="close" />
@@ -194,13 +198,32 @@ function handleLock() {
   showMasterPasswordModal.value = true
 }
 
-function handleSaveHost(host: HostFormData) {
+async function handleSaveHost(host: HostFormData) {
   savedHosts.value.push(host)
+  if (window.__TAURI_INTERNALS__) {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('save_host', { host })
+    } catch (e) {
+      console.error('保存主机到后端保险箱失败:', e)
+    }
+  }
   showNewConnectionModal.value = false
+  workspaceStore.splitPane(
+    workspaceStore.activePaneId,
+    'horizontal',
+    host.id,
+    host.label || `${host.username}@${host.host}`
+  )
 }
 
 function handleConnectHost(host: HostFormData) {
-  workspaceStore.splitPane(workspaceStore.activePaneId, 'horizontal', host.id)
+  workspaceStore.splitPane(
+    workspaceStore.activePaneId,
+    'horizontal',
+    host.id,
+    host.label || `${host.username}@${host.host}`
+  )
   showSessionListModal.value = false
 }
 

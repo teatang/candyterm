@@ -9,8 +9,25 @@
       <span>输入广播模式已开启 (所有窗格同步接收按键)</span>
     </div>
 
+    <!-- 空窗格引导状态 -->
+    <div
+      v-if="workspaceStore.panes.length === 0"
+      class="w-full h-full flex flex-col items-center justify-center text-slate-500 space-y-4"
+    >
+      <div class="text-4xl">🍬</div>
+      <div class="text-sm text-slate-400 font-medium">当前工作区暂无活跃终端窗格</div>
+      <button
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition-all flex items-center space-x-1.5"
+        @click="workspaceStore.splitPane('', 'horizontal')"
+      >
+        <span>＋</span>
+        <span>打开本地终端</span>
+      </button>
+    </div>
+
     <!-- 动态分屏网格 -->
     <div
+      v-else
       class="w-full h-full grid gap-1.5"
       :style="gridStyle"
     >
