@@ -63,6 +63,10 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 主密码安全解锁与首次初始化模态框
+ * 提供 Argon2id + AES-256-GCM 本地加密保险箱的解锁保护
+ */
 import { ref } from 'vue'
 
 const props = defineProps<{

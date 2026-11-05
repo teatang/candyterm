@@ -67,6 +67,10 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 已保存服务器会话列表管理组件
+ * 支持快捷连接、新建会话触发以及主机记录移除
+ */
 import type { HostFormData } from './NewConnectionModal.vue'
 
 defineProps<{

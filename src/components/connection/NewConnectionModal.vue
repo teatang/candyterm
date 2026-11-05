@@ -164,6 +164,10 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 新建与编辑主机连接表单模态框
+ * 支持密码、私钥（含口令）、SSH Agent 与 ProxyJump 跳板机级联配置
+ */
 import { ref, reactive } from 'vue'
 
 export interface HostFormData {
