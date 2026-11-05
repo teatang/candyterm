@@ -25,7 +25,9 @@
           @focus="workspaceStore.focusPane(pane.id)"
         >
           <template #drawer="{ isOpen, close }">
-            <slot name="pane-drawer" :pane="pane" :is-open="isOpen" :close="close"></slot>
+            <slot name="pane-drawer" :pane="pane" :is-open="isOpen" :close="close">
+              <SftpDrawer :is-open="isOpen" :pane-id="pane.id" @close="close" />
+            </slot>
           </template>
         </TerminalPane>
       </div>
@@ -37,6 +39,7 @@
 import { computed } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import TerminalPane from './TerminalPane.vue'
+import SftpDrawer from '@/components/sftp/SftpDrawer.vue'
 
 const workspaceStore = useWorkspaceStore()
 
