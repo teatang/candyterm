@@ -1,0 +1,77 @@
+{
+  "app": {
+    "name": "Candyterm",
+    "tagline": "高性能极简 SSH / SFTP 客户端",
+    "version": "版本"
+  },
+  "nav": {
+    "sessions": "会话列表",
+    "sftp": "文件管理",
+    "snippets": "快捷指令",
+    "settings": "系统设置",
+    "broadcast": "输入广播"
+  },
+  "auth": {
+    "title": "保险箱已锁定",
+    "subtitle": "请输入主密码以解锁服务器连接与凭据",
+    "masterPassword": "主密码",
+    "confirmPassword": "确认主密码",
+    "initTitle": "设置主密码",
+    "initSubtitle": "首次启动请设置主密码，用于加密保护所有服务器连接与密钥",
+    "unlock": "解锁",
+    "initialize": "创建保险箱",
+    "invalidPassword": "主密码错误，请重试",
+    "passwordMismatch": "两次输入的密码不一致"
+  },
+  "connection": {
+    "new": "新建连接",
+    "edit": "编辑连接",
+    "label": "会话名称",
+    "host": "主机地址",
+    "port": "端口",
+    "username": "用户名",
+    "authType": "认证方式",
+    "password": "密码",
+    "privateKey": "私钥路径/内容",
+    "passphrase": "私钥口令 (可选)",
+    "sshAgent": "SSH 代理 (Agent)",
+    "jumpHost": "跳板机 (Jump Host)",
+    "none": "无",
+    "connect": "连接",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除"
+  },
+  "terminal": {
+    "splitRight": "向右拆分",
+    "splitDown": "向下拆分",
+    "close": "关闭窗格",
+    "maximize": "最大化",
+    "restore": "恢复",
+    "openSftp": "打开 SFTP 抽屉",
+    "broadcastEnabled": "输入广播已开启",
+    "broadcastDisabled": "输入广播已关闭"
+  },
+  "sftp": {
+    "local": "本地文件",
+    "remote": "远程文件",
+    "upload": "上传",
+    "download": "下载",
+    "refresh": "刷新",
+    "delete": "删除",
+    "rename": "重命名",
+    "newFolder": "新建文件夹",
+    "transfers": "传输队列",
+    "emptyDirectory": "目录为空",
+    "dragToUpload": "拖拽文件至此快速上传"
+  },
+  "settings": {
+    "theme": "外观主题",
+    "language": "显示语言",
+    "themeAuto": "跟随系统",
+    "themeLight": "明亮模式",
+    "themeDark": "暗黑模式",
+    "langZh": "简体中文",
+    "langEn": "English"
+  }
+}
