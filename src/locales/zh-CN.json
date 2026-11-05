@@ -5,6 +5,7 @@
     "version": "版本"
   },
   "nav": {
+    "workspace": "终端工作区",
     "sessions": "会话列表",
     "sftp": "文件管理",
     "snippets": "快捷指令",
@@ -39,10 +40,20 @@
     "none": "无",
     "connect": "连接",
     "save": "保存",
+    "saveAndConnect": "保存并连接",
     "cancel": "取消",
-    "delete": "删除"
+    "delete": "删除",
+    "sessionListTitle": "服务器列表 (Sessions)",
+    "noSavedHosts": "暂无保存的服务器连接，点击右上角 \"+ 新建连接\" 添加",
+    "hostRequired": "主机地址不得为空",
+    "userRequired": "用户名不得为空"
   },
   "terminal": {
+    "activeTerminal": "活跃终端",
+    "splitHorizontal": "水平分屏",
+    "splitVertical": "垂直分屏",
+    "openLocalTerminal": "打开本地终端",
+    "noActivePanes": "当前工作区暂无活跃终端窗格",
     "splitRight": "向右拆分",
     "splitDown": "向下拆分",
     "close": "关闭窗格",
@@ -63,15 +74,37 @@
     "newFolder": "新建文件夹",
     "transfers": "传输队列",
     "emptyDirectory": "目录为空",
-    "dragToUpload": "拖拽文件至此快速上传"
+    "dragToUpload": "拖拽文件至此快速上传",
+    "goUp": "返回上一级",
+    "closeDrawer": "关闭抽屉",
+    "dropToUpload": "松开鼠标立即上传到当前目录",
+    "directory": "目录",
+    "emptyOrLoading": "空目录或正在加载...",
+    "dragHint": "支持从桌面直接拖入上传",
+    "items": "项",
+    "fullViewTitle": "全功能 SFTP 双栏文件管理器",
+    "fullViewSubtitle": "(支持本地/远程双向拖放与断点续传)",
+    "testUpload": "上传测试",
+    "refreshBoth": "刷新双端",
+    "clearCompleted": "清空完成",
+    "transferring": "传输中",
+    "total": "总计",
+    "noTransfers": "当前无传输任务",
+    "cancelTransfer": "取消传输"
   },
   "settings": {
+    "title": "Candyterm 系统设置",
     "theme": "外观主题",
+    "appearance": "外观与主题",
+    "colorMode": "色彩模式",
     "language": "显示语言",
     "themeAuto": "跟随系统",
     "themeLight": "明亮模式",
     "themeDark": "暗黑模式",
     "langZh": "简体中文",
-    "langEn": "English"
+    "langEn": "English",
+    "security": "安全与主密码",
+    "securityDesc": "所有服务器连接与密码均使用 Argon2id + AES-256-GCM 硬件加密安全保存在本地。",
+    "lockNow": "立即锁定保险箱"
   }
 }

@@ -1,25 +1,25 @@
 <template>
   <div
-    class="relative flex flex-col h-full w-full bg-slate-950 border border-transparent transition-colors duration-150 rounded overflow-hidden"
+    class="relative flex flex-col h-full w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 transition-colors duration-150 rounded overflow-hidden"
     :class="{
       '!border-blue-500 shadow-md shadow-blue-500/10': isActive,
-      'border-slate-800': !isActive
+      'border-slate-200 dark:border-slate-800': !isActive
     }"
     @click="onFocus"
   >
     <!-- 窗格顶部工具栏 -->
-    <div class="flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-400 select-none">
+    <div class="flex items-center justify-between px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-colors">
       <div class="flex items-center space-x-2 truncate">
-        <span class="inline-block w-2 h-2 rounded-full" :class="isActive ? 'bg-emerald-500' : 'bg-slate-600'"></span>
-        <span class="font-mono font-medium text-slate-200 truncate">{{ pane.title }}</span>
+        <span class="inline-block w-2 h-2 rounded-full" :class="isActive ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-600'"></span>
+        <span class="font-mono font-medium text-slate-700 dark:text-slate-200 truncate">{{ pane.title }}</span>
       </div>
 
       <div class="flex items-center space-x-1">
         <!-- SFTP 随动抽屉按钮 -->
         <button
-          class="p-1 hover:text-slate-100 hover:bg-slate-800 rounded transition-colors"
-          :class="{ 'text-blue-400': pane.isDrawerOpen }"
-          title="SFTP 文件面板"
+          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          :class="{ 'text-blue-500 dark:text-blue-400': pane.isDrawerOpen }"
+          :title="t('terminal.openSftp')"
           @click.stop="toggleDrawer"
         >
           📁
@@ -27,8 +27,8 @@
 
         <!-- 向右拆分 -->
         <button
-          class="p-1 hover:text-slate-100 hover:bg-slate-800 rounded transition-colors"
-          title="向右拆分"
+          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          :title="t('terminal.splitRight')"
           @click.stop="splitRight"
         >
           ◫
@@ -36,8 +36,8 @@
 
         <!-- 向下拆分 -->
         <button
-          class="p-1 hover:text-slate-100 hover:bg-slate-800 rounded transition-colors"
-          title="向下拆分"
+          class="p-1 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          :title="t('terminal.splitDown')"
           @click.stop="splitDown"
         >
           ⬓
@@ -45,8 +45,8 @@
 
         <!-- 关闭窗格 -->
         <button
-          class="p-1 hover:text-red-400 hover:bg-slate-800 rounded transition-colors"
-          title="关闭窗格"
+          class="p-1 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
+          :title="t('terminal.close')"
           @click.stop="closeThisPane"
         >
           ✕
@@ -57,7 +57,7 @@
     <!-- 终端承载区域与抽屉容器 -->
     <div class="relative flex-1 flex w-full h-full overflow-hidden">
       <!-- xterm 挂载容器 -->
-      <div ref="terminalContainer" class="flex-1 w-full h-full p-1 bg-slate-950"></div>
+      <div ref="terminalContainer" class="flex-1 w-full h-full p-1 bg-white dark:bg-slate-950 transition-colors"></div>
 
       <!-- 随动 SFTP 抽屉插槽/嵌入 -->
       <slot name="drawer" :is-open="pane.isDrawerOpen ?? false" :close="toggleDrawer"></slot>
@@ -67,11 +67,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebglAddon } from '@xterm/addon-webgl'
 import type { TerminalPaneItem } from '@/types/terminal'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { useThemeStore } from '@/stores/theme'
 import '@xterm/xterm/css/xterm.css'
 
 const props = defineProps<{
@@ -83,7 +85,9 @@ const emit = defineEmits<{
   (e: 'focus'): void
 }>()
 
+const { t } = useI18n()
 const workspaceStore = useWorkspaceStore()
+const themeStore = useThemeStore()
 const terminalContainer = ref<HTMLDivElement | null>(null)
 
 let term: Terminal | null = null
@@ -155,6 +159,27 @@ onMounted(() => {
     // 本地回显或发送至后端
     term?.write(data)
   })
+
+  // 监听主题变化，动态调整 xterm 色彩
+  watch(
+    () => themeStore.isDark,
+    (isDark) => {
+      if (term) {
+        term.options.theme = isDark
+          ? {
+              background: '#020617',
+              foreground: '#f8fafc',
+              cursor: '#38bdf8'
+            }
+          : {
+              background: '#ffffff',
+              foreground: '#0f172a',
+              cursor: '#2563eb'
+            }
+      }
+    },
+    { immediate: true }
+  )
 
   // 监听窗口尺寸变化
   window.addEventListener('resize', handleResize)

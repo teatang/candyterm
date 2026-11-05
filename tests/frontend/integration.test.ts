@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { i18n } from '@/locales'
 import MasterPasswordModal from '@/components/auth/MasterPasswordModal.vue'
 import NewConnectionModal from '@/components/connection/NewConnectionModal.vue'
+import MainWorkspace from '@/views/MainWorkspace.vue'
 
 /**
  * 验证主密码弹窗表单校验与新建连接模态框数据装配
@@ -10,8 +12,10 @@ import NewConnectionModal from '@/components/connection/NewConnectionModal.vue'
 describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    // 明确设置测试环境默认语言为 zh-CN
+    i18n.global.locale.value = 'zh-CN'
     // 模拟 jsdom 缺失的 getContext 与 matchMedia，保证纯净测试输出
-    HTMLCanvasElement.prototype.getContext = () => ({
+    HTMLCanvasElement.prototype.getContext = (() => ({
       fillRect: () => {},
       clearRect: () => {},
       getImageData: () => ({ data: [] }),
@@ -36,7 +40,7 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
       transform: () => {},
       rect: () => {},
       clip: () => {}
-    } as unknown as RenderingContext)
+    })) as unknown as typeof HTMLCanvasElement.prototype.getContext
 
     window.matchMedia = window.matchMedia || (() => ({
       matches: false,
@@ -55,6 +59,9 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
       props: {
         show: true,
         isInitialized: false
+      },
+      global: {
+        plugins: [i18n]
       }
     })
 
@@ -74,6 +81,9 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
       props: {
         show: true,
         isInitialized: true
+      },
+      global: {
+        plugins: [i18n]
       }
     })
 
@@ -92,6 +102,9 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
       props: {
         show: true,
         existingHosts: []
+      },
+      global: {
+        plugins: [i18n]
       }
     })
 
@@ -102,7 +115,6 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
   })
 
   it('工作区工具栏的新建连接和会话列表按钮应正确触发事件', async () => {
-    const { default: MainWorkspace } = await import('@/views/MainWorkspace.vue')
     const wrapper = mount(MainWorkspace, {
       props: {
         savedHosts: [
@@ -110,8 +122,10 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
         ]
       },
       global: {
+        plugins: [i18n],
         stubs: {
-          SplitWorkspace: true
+          SplitWorkspace: true,
+          IconSidebar: true
         }
       }
     })
@@ -127,5 +141,40 @@ describe('应用集成与模态框测试 (Integration & Modals Test)', () => {
     expect(sessionListBtn).toBeDefined()
     await sessionListBtn?.trigger('click')
     expect(wrapper.emitted('open-sessions')).toBeTruthy()
+  })
+
+  it('切换语言时工作区文本应即时响应', async () => {
+    const wrapper = mount(MainWorkspace, {
+      global: {
+        plugins: [i18n],
+        stubs: {
+          SplitWorkspace: true,
+          IconSidebar: true
+        }
+      }
+    })
+
+    // 中文状态
+    i18n.global.locale.value = 'zh-CN'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('新建连接')
+    expect(wrapper.text()).toContain('会话列表')
+
+    // 切换至英文
+    i18n.global.locale.value = 'en-US'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('New Connection')
+    expect(wrapper.text()).toContain('Sessions')
+  })
+
+  it('外观模式切换时应当正确更新 DOM 根节点 dark 类', async () => {
+    const { useThemeStore } = await import('@/stores/theme')
+    const themeStore = useThemeStore()
+
+    themeStore.setThemeMode('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+
+    themeStore.setThemeMode('light')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
 })

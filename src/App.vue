@@ -1,7 +1,7 @@
 <template>
   <n-config-provider :theme="themeStore.isDark ? darkTheme : null">
     <n-message-provider>
-      <div class="h-screen w-screen overflow-hidden bg-slate-900 font-sans text-slate-100 select-none">
+      <div class="h-screen w-screen overflow-hidden bg-slate-100 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 select-none transition-colors">
         <!-- 主工作区 -->
         <MainWorkspace
           :saved-hosts="savedHosts"
@@ -21,69 +21,69 @@
           <!-- 设置视图 -->
           <template #settings-view>
             <div class="max-w-2xl mx-auto space-y-6">
-              <h2 class="text-xl font-bold text-slate-100 flex items-center space-x-2">
+              <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
                 <span>⚙️</span>
-                <span>Candyterm 系统设置</span>
+                <span>{{ t('settings.title') }}</span>
               </h2>
 
-              <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
-                <h3 class="text-sm font-bold text-slate-300">外观与主题</h3>
+              <div class="bg-white dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm transition-colors">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ t('settings.appearance') }}</h3>
                 <div class="flex items-center justify-between">
-                  <span class="text-xs text-slate-400">色彩模式</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('settings.colorMode') }}</span>
                   <div class="flex space-x-2">
                     <button
-                      class="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      :class="themeStore.mode === 'auto' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                      :class="themeStore.mode === 'auto' ? 'bg-blue-600/20 border-blue-500 text-blue-500 dark:text-blue-400 font-semibold' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'"
                       @click="themeStore.setThemeMode('auto')"
                     >
-                      跟随系统
+                      {{ t('settings.themeAuto') }}
                     </button>
                     <button
-                      class="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      :class="themeStore.mode === 'dark' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                      :class="themeStore.mode === 'dark' ? 'bg-blue-600/20 border-blue-500 text-blue-500 dark:text-blue-400 font-semibold' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'"
                       @click="themeStore.setThemeMode('dark')"
                     >
-                      暗黑模式
+                      {{ t('settings.themeDark') }}
                     </button>
                     <button
-                      class="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      :class="themeStore.mode === 'light' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                      :class="themeStore.mode === 'light' ? 'bg-blue-600/20 border-blue-500 text-blue-500 dark:text-blue-400 font-semibold' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'"
                       @click="themeStore.setThemeMode('light')"
                     >
-                      明亮模式
+                      {{ t('settings.themeLight') }}
                     </button>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-3 border-t border-slate-800">
-                  <span class="text-xs text-slate-400">显示语言</span>
+                <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
+                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('settings.language') }}</span>
                   <div class="flex space-x-2">
                     <button
-                      class="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      :class="i18nStore.locale === 'zh-CN' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                      :class="i18nStore.locale === 'zh-CN' ? 'bg-blue-600/20 border-blue-500 text-blue-500 dark:text-blue-400 font-semibold' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'"
                       @click="i18nStore.setLocale('zh-CN')"
                     >
-                      简体中文
+                      {{ t('settings.langZh') }}
                     </button>
                     <button
-                      class="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                      :class="i18nStore.locale === 'en-US' ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                      :class="i18nStore.locale === 'en-US' ? 'bg-blue-600/20 border-blue-500 text-blue-500 dark:text-blue-400 font-semibold' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'"
                       @click="i18nStore.setLocale('en-US')"
                     >
-                      English
+                      {{ t('settings.langEn') }}
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3">
-                <h3 class="text-sm font-bold text-slate-300">安全与主密码</h3>
-                <p class="text-xs text-slate-400">所有服务器连接与密码均使用 Argon2id + AES-256-GCM 硬件加密安全保存在本地。</p>
+              <div class="bg-white dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm transition-colors">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ t('settings.security') }}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('settings.securityDesc') }}</p>
                 <button
-                  class="px-4 py-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                  class="px-4 py-2 bg-red-600/20 text-red-500 dark:text-red-400 hover:bg-red-600 hover:text-white rounded-lg text-xs font-medium transition-colors"
                   @click="handleLock"
                 >
-                  🔒 立即锁定保险箱
+                  🔒 {{ t('settings.lockNow') }}
                 </button>
               </div>
             </div>
@@ -121,6 +121,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
 import { useThemeStore } from '@/stores/theme'
 import { useI18nStore } from '@/stores/i18n'
@@ -132,6 +133,7 @@ import MasterPasswordModal from '@/components/auth/MasterPasswordModal.vue'
 import NewConnectionModal, { type HostFormData } from '@/components/connection/NewConnectionModal.vue'
 import SessionListModal from '@/components/connection/SessionListModal.vue'
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 const i18nStore = useI18nStore()
 const workspaceStore = useWorkspaceStore()
