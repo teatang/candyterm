@@ -60,7 +60,7 @@
       <div ref="terminalContainer" class="flex-1 w-full h-full p-1 bg-slate-950"></div>
 
       <!-- 随动 SFTP 抽屉插槽/嵌入 -->
-      <slot name="drawer" :is-open="pane.isDrawerOpen" :close="toggleDrawer"></slot>
+      <slot name="drawer" :is-open="pane.isDrawerOpen ?? false" :close="toggleDrawer"></slot>
     </div>
   </div>
 </template>

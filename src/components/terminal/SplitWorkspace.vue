@@ -25,8 +25,8 @@
           @focus="workspaceStore.focusPane(pane.id)"
         >
           <template #drawer="{ isOpen, close }">
-            <slot name="pane-drawer" :pane="pane" :is-open="isOpen" :close="close">
-              <SftpDrawer :is-open="isOpen" :pane-id="pane.id" @close="close" />
+            <slot name="pane-drawer" :pane="pane" :is-open="isOpen ?? false" :close="close">
+              <SftpDrawer :is-open="isOpen ?? false" :pane-id="pane.id" @close="close" />
             </slot>
           </template>
         </TerminalPane>
