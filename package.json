@@ -1,6 +1,6 @@
 {
   "name": "candyterm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "基于 Tauri 2.x 和 Vue 3 的高性能极简 SSH / SFTP 客户端",
   "license": "MIT",
   "private": true,
@@ -12,6 +12,7 @@
     "tauri": "tauri",
     "test": "vitest run",
     "test:watch": "vitest",
+    "postinstall": "simple-git-hooks",
     "release": "release-it"
   },
   "dependencies": {
