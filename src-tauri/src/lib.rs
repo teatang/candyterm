@@ -3,9 +3,12 @@
 
 pub mod commands;
 pub mod crypto;
+pub mod sftp;
+pub mod ssh;
 pub mod vault;
 
 use commands::*;
+use ssh::session::SshSessionManager;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::Manager;
@@ -23,9 +26,12 @@ pub fn run() {
                 .unwrap_or_else(|_| PathBuf::from("./data"));
             let vault_path = app_data_dir.join("vault.enc");
 
-            let manager = VaultManager::new(vault_path);
+            let vault_manager = VaultManager::new(vault_path);
+            let ssh_sessions = SshSessionManager::new();
+
             app.manage(AppState {
-                vault: Mutex::new(manager),
+                vault: Mutex::new(vault_manager),
+                ssh_sessions: Mutex::new(ssh_sessions),
             });
             Ok(())
         })
@@ -34,7 +40,16 @@ pub fn run() {
             is_vault_unlocked,
             init_vault,
             unlock_vault,
-            lock_vault
+            lock_vault,
+            save_host,
+            get_hosts,
+            delete_host,
+            connect_ssh,
+            send_terminal_input,
+            resize_pty,
+            disconnect_ssh,
+            sftp_list_dir,
+            sftp_upload_file
         ])
         .run(tauri::generate_context!())
         .expect("运行 Candyterm Tauri 应用失败");
